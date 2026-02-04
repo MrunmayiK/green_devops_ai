@@ -2,31 +2,36 @@ import psutil
 import time
 import csv
 import os
-from datetime import datetime
 import subprocess
+from datetime import datetime
 
-# Start process
+# Start workload
 start_time = time.time()
-
-# Run workload
 process = subprocess.Popen(["python", "app.py"])
 
 ps_proc = psutil.Process(process.pid)
 
-cpu_start = ps_proc.cpu_times()
-mem_start = ps_proc.memory_info().rss
+cpu_user = 0.0
+cpu_system = 0.0
+peak_memory = 0
 
-# Wait for completion
-process.wait()
+# Monitor while running
+while process.poll() is None:
+    try:
+        cpu = ps_proc.cpu_times()
+        mem = ps_proc.memory_info().rss
 
-cpu_end = ps_proc.cpu_times()
-mem_end = ps_proc.memory_info().rss
+        cpu_user = cpu.user
+        cpu_system = cpu.system
+        peak_memory = max(peak_memory, mem)
+
+    except psutil.NoSuchProcess:
+        break
+
+    time.sleep(0.1)
+
 end_time = time.time()
-
 runtime = end_time - start_time
-cpu_user = cpu_end.user - cpu_start.user
-cpu_system = cpu_end.system - cpu_start.system
-memory_used = mem_end - mem_start
 
 timestamp = datetime.utcnow().isoformat()
 
@@ -35,7 +40,7 @@ row = [
     runtime,
     cpu_user,
     cpu_system,
-    memory_used
+    peak_memory
 ]
 
 file_exists = os.path.isfile("metrics.csv")
@@ -49,7 +54,7 @@ with open("metrics.csv", "a", newline="") as f:
             "runtime",
             "cpu_user",
             "cpu_system",
-            "memory_used"
+            "peak_memory"
         ])
 
     writer.writerow(row)
