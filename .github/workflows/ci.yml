@@ -25,3 +25,13 @@ jobs:
     - name: Monitor resources
       run: python monitor_app.py
 
+    - name: Build dataset
+      run: python collect.py
+
+    - name: Train AI model
+      run: python train_model.py
+
+    - name: Detect anomalies
+      run: python detect.py
+
+
