@@ -3,21 +3,25 @@ import time
 import csv
 import os
 from datetime import datetime
+import subprocess
 
-process = psutil.Process()
-
-# Start measurements
+# Start process
 start_time = time.time()
-cpu_start = process.cpu_times()
-mem_start = process.memory_info().rss
 
-# Simulate monitoring during workload
-time.sleep(1)
+# Run workload
+process = subprocess.Popen(["python", "app.py"])
 
-# End measurements
+ps_proc = psutil.Process(process.pid)
+
+cpu_start = ps_proc.cpu_times()
+mem_start = ps_proc.memory_info().rss
+
+# Wait for completion
+process.wait()
+
+cpu_end = ps_proc.cpu_times()
+mem_end = ps_proc.memory_info().rss
 end_time = time.time()
-cpu_end = process.cpu_times()
-mem_end = process.memory_info().rss
 
 runtime = end_time - start_time
 cpu_user = cpu_end.user - cpu_start.user
