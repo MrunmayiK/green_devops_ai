@@ -24,3 +24,7 @@ jobs:
 
     - name: Run tests
       run: pytest
+
+    - name: Monitor resources
+      run: python monitor_app.py
+
