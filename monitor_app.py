@@ -34,9 +34,10 @@ end_time = time.time()
 runtime = end_time - start_time
 
 timestamp = datetime.utcnow().isoformat()
-
+mode = os.getenv("WORKLOAD_MODE", "normal")
 row = [
     timestamp,
+    mode,
     runtime,
     cpu_user,
     cpu_system,
@@ -51,6 +52,7 @@ with open("metrics.csv", "a", newline="") as f:
     if not file_exists:
         writer.writerow([
             "timestamp",
+            "mode",
             "runtime",
             "cpu_user",
             "cpu_system",
