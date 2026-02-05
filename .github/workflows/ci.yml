@@ -6,6 +6,10 @@ on:
 
 jobs:
   build-test:
+    strategy:
+      matrix:
+        mode: [light, normal, heavy, memory]
+
     runs-on: ubuntu-latest
 
     steps:
@@ -24,6 +28,8 @@ jobs:
 
     - name: Monitor resources
       run: python monitor_app.py
+      env:
+        WORKLOAD_MODE: ${{ matrix.mode }}
 
     - name: Build dataset
       run: python collect.py
